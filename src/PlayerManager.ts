@@ -3,7 +3,7 @@ import { GatewayOP, Guild, Store, Util } from "@kyudiscord/neo";
 import { EventEmitter } from "events";
 import type { NodeData } from "./node/Node";
 import { LavalinkNode } from "./node/Node";
-import type { Player } from './player/Player';
+import type { Player } from "./player/Player";
 
 const defaults: ManagerOptions = {
   nodes: [],
@@ -16,7 +16,7 @@ const defaults: ManagerOptions = {
     delay: 15000,
     maxTries: 5
   }
-}
+};
 
 export class PlayerManager extends EventEmitter {
   /**
@@ -50,11 +50,12 @@ export class PlayerManager extends EventEmitter {
 
     this.client = client;
     this.nodes = new Store();
+    Object.defineProperty(client, "voice", { value: this });
 
     this.reconnection = options.reconnect!;
     this.resuming = (typeof options.resuming === "boolean"
       ? !options.resuming ? null : defaults.resuming
-      : options.resuming ?? defaults.resuming) as any;
+      : options.resuming ?? defaults.resuming) as ResumeOptions;
 
     this._listen(options);
   }
@@ -88,7 +89,7 @@ export class PlayerManager extends EventEmitter {
       return node.createPlayer(guild);
     }
 
-    return undefined
+    return undefined;
   }
 
   /**
@@ -143,7 +144,7 @@ export class PlayerManager extends EventEmitter {
     const player = this.players.get(update.guild_id);
     if (player) {
       player.link.provide(update);
-      await player.link.voiceUpdate()
+      await player.link.voiceUpdate();
     }
 
     return;
