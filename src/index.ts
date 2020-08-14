@@ -6,6 +6,7 @@ import { LavalinkNode } from "./node/Node";
 import { Player } from "./player/Player";
 import { JoinOptions, Link } from "./player/Link";
 import { REST } from "./node/REST";
+import { voice } from "./Extender";
 
 export * from "./node/REST";
 export * from "./node/Node";
@@ -13,13 +14,15 @@ export * from "./player/Player";
 export * from "./player/Track";
 export * from "./player/Link";
 export * from "./PlayerManager";
+export { voice as extender } from "./Extender";
 
 export default {
   PlayerManager,
   LavalinkNode,
   Player,
   Link,
-  REST
+  REST,
+  extender: voice
 };
 
 declare module "@kyudiscord/neo" {

@@ -1,11 +1,11 @@
 import { Guild, Queue, Store, Timers } from "@kyudiscord/neo";
 import WebSocket from "ws";
 import { REST } from "./REST";
-import { Link } from "../player/Link";
+import { voice } from "../Extender";
 
 import type { PlayerManager, ReconnectOptions } from "../PlayerManager";
-import type { Player } from "../player/Player";
 import type { NodeStats } from "@lavaclient/types";
+import type { Player } from "../player/Player";
 
 export enum Status {
   CONNECTED,
@@ -211,7 +211,7 @@ export class LavalinkNode {
   public createPlayer(guild: string | Guild): Player {
     let player = this.players.get(String(guild));
     if (!player) {
-      const link = new Link(this, String(guild));
+      const link = new (voice.get("Link"))(this, String(guild));
       this.players.set(link.guildId, link.player);
       player = link.player;
     }

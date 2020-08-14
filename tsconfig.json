@@ -13,8 +13,8 @@
     /* Compiling */
     "incremental": false,
     "inlineSourceMap": true,
-    "declaration": false,
-    "removeComments": true,
+    "declaration": true,
+    "removeComments": false,
     "allowJs": true,
     "rootDir": "./src",
     "outDir": "./dist",

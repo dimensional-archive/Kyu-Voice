@@ -1,5 +1,6 @@
 import { GatewayOP, Guild, Store, Util } from "@kyudiscord/neo";
 import { EventEmitter } from "events";
+import { voice } from "./Extender";
 import { LavalinkNode } from "./node/Node";
 
 import type { Client, Payload } from "@kyudiscord/neo";
@@ -53,7 +54,7 @@ export class PlayerManager extends EventEmitter {
     this.nodes = new Store();
     Object.defineProperty(client, "voice", { value: this });
 
-    this.reconnection = options.reconnect!;
+    this.reconnection = options.reconnect as ReconnectOptions;
     this.resuming = (typeof options.resuming === "boolean"
       ? !options.resuming ? null : defaults.resuming
       : options.resuming ?? defaults.resuming) as ResumeOptions;
@@ -112,7 +113,7 @@ export class PlayerManager extends EventEmitter {
     this.client
       .once("ready", () => {
         for (const node of options.nodes ?? []) {
-          const created = new LavalinkNode(this, node);
+          const created = new (voice.get("LavalinkNode"))(this, node);
           created.connect();
           this.nodes.set(node.id, created);
         }
@@ -158,10 +159,10 @@ export class PlayerManager extends EventEmitter {
    */
   private async _stateUpdate(d: VoiceStateUpdate): Promise<void> {
     const player = this.players.get(d.guild_id);
-    if (player && d.user_id === this.client.user!.id) {
+    if (player && d.user_id === this.client.user?.id) {
       if (d.channel_id !== player.link.channelId) {
         player.emit("move", d.channel_id);
-        player.link.channelId = d.channel_id!;
+        player.link.channelId = d.channel_id;
       }
 
       player.link.provide(d);

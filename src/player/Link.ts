@@ -1,9 +1,9 @@
 import { GatewayOP, VoiceChannel } from "@kyudiscord/neo";
-import { Player } from "./Player";
-import { AudioTrack } from "./Track";
+import { voice } from "../Extender";
 
 import type { Client, Guild } from "@kyudiscord/neo";
 import type { Event, PlayerUpdate } from "@lavaclient/types";
+import type { Player } from "./Player";
 import type { LavalinkNode } from "../node/Node";
 import type { VoiceServerUpdate, VoiceStateUpdate } from "../PlayerManager";
 
@@ -45,7 +45,7 @@ export class Link {
   public constructor(node: LavalinkNode, guildId: string) {
     this.node = node;
     this.guildId = guildId;
-    this.player = new Player(this);
+    this.player = new (voice.get("Player"))(this);
   }
 
   /**
@@ -175,7 +175,7 @@ export class Link {
         case "TrackStartEvent": {
           const info = await this.node.rest.decodeTracks(event.track);
           this.player.playing = true;
-          this.player.track = new AudioTrack({ track: event.track, info });
+          this.player.track = new (voice.get("AudioTrack"))({ track: event.track, info });
           this.player.emit("start", this.player.track);
           break;
         }
