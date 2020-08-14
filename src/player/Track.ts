@@ -43,7 +43,7 @@ export class AudioTrack implements Track {
    * Defines the toString behavior of this audio track.
    * @since 1.0.0
    */
-  public toString() {
+  public toString(): string {
     return this.info.title;
   }
 }

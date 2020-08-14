@@ -114,7 +114,7 @@ export class LavalinkNode {
       players: 0,
       playingPlayers: 0,
       uptime: 0
-    }
+    };
 
     Object.defineProperty(this, "password", {
       value: data.password ?? "youshallnotpass",
@@ -135,8 +135,8 @@ export class LavalinkNode {
    * If this node is connected or not.
    */
   public get connected(): boolean {
-    return this.ws!
-      && this.ws!.readyState === WebSocket.OPEN;
+    return this.ws !== undefined
+      && this.ws.readyState === WebSocket.OPEN;
   }
 
   /**
@@ -154,8 +154,8 @@ export class LavalinkNode {
 
     let deficit = 0, nulled = 0;
     if (this.stats.frameStats?.deficit != -1) {
-      deficit = Math.pow(1.03, 500 * (this.stats.frameStats?.deficit! / 3000)) * 600 - 600;
-      nulled = (Math.pow(1.03, 500 * (this.stats.frameStats?.nulled! / 3000)) * 600 - 600) * 2;
+      deficit = Math.pow(1.03, 500 * ((this.stats.frameStats?.deficit ?? 0) / 3000)) * 600 - 600;
+      nulled = (Math.pow(1.03, 500 * ((this.stats.frameStats?.nulled ?? 0) / 3000)) * 600 - 600) * 2;
       nulled *= 2;
     }
 
@@ -168,7 +168,7 @@ export class LavalinkNode {
    * @param priority If this message should be prioritized.
    * @since 1.0.0
    */
-  public async send(data: any, priority: boolean = false): Promise<void> {
+  public async send(data: unknown, priority = false): Promise<void> {
     return new Promise((resolve, reject) => {
       data = JSON.stringify(data);
       this.queue.payloads[priority ? "unshift" : "push"]({ data: data, reject, resolve });
@@ -182,7 +182,7 @@ export class LavalinkNode {
    */
   public connect(): void {
     if (this.status !== Status.RECONNECTING)
-      this.status = Status.CONNECTING
+      this.status = Status.CONNECTING;
 
     if (this.connected) {
       this._cleanup();
@@ -192,9 +192,9 @@ export class LavalinkNode {
 
     const headers: Dictionary<string | number> = {
       authorization: this.password,
-      "num-shards": this.manager.client.options.shardCount!,
-      "user-id": this.manager.client.user!.id,
-    }
+      "num-shards": this.manager.client.options.shardCount as number,
+      "user-id": this.manager.client.user?.id as string,
+    };
     if (this.resumeKey) headers["resume-key"] = this.resumeKey;
 
     this.ws = new WebSocket(`ws${this.https ? "s" : ""}://${this.address}`, { headers });
@@ -213,7 +213,7 @@ export class LavalinkNode {
     if (!player) {
       const link = new Link(this, String(guild));
       this.players.set(link.guildId, link.player);
-      player = link.player
+      player = link.player;
     }
 
     return player;
@@ -237,10 +237,10 @@ export class LavalinkNode {
   /**
    * Reconnect to the lavalink node.
    */
-  public reconnect() {
+  public reconnect(): void {
     if (this.remainingTries !== 0) {
       this.remainingTries -= 1;
-      this.status = Status.RECONNECTING
+      this.status = Status.RECONNECTING;
 
       try {
         this.connect();
@@ -248,12 +248,12 @@ export class LavalinkNode {
       } catch (e) {
         this.manager.emit("nodeError", this, e);
         this.reconnectTimeout = Timers.setTimeout(() => {
-          this.reconnect()
+          this.reconnect();
         }, this.reconnection.delay ?? 15000);
       }
     } else {
       this.status = Status.DISCONNECTED;
-      this.manager.emit("nodeDisconnect", this, `Ran out of reconnect tries.`);
+      this.manager.emit("nodeDisconnect", this, "Ran out of reconnect tries.");
     }
   }
 
@@ -305,7 +305,7 @@ export class LavalinkNode {
       return;
     }
 
-    const player = this.players.get(pk.guildId);
+    const player = this.players.get(pk.guildId as string);
     if (pk.guildId && player) await player.link._handle(pk);
     else if (pk.op === "stats") this.stats = pk;
   }

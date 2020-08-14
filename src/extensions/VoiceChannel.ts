@@ -15,7 +15,7 @@ neo.extend("VoiceChannel", (VoiceChannel) =>
      * @param options Options for self mute and self deaf.
      * @since  @kyudiscord/voice 1.0.3
      */
-    public async join(options: JoinOptions = {}): Promise<Player> {
+    public join(options: JoinOptions = {}): Player {
       if (this.joinable) {
         const player = this.client.voice.create(this.guild.id);
         if (player) {

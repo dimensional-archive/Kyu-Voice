@@ -1,11 +1,11 @@
-import type { Client, Guild } from "@kyudiscord/neo";
 import { GatewayOP, VoiceChannel } from "@kyudiscord/neo";
-
-import type { LavalinkNode } from "../node/Node";
 import { Player } from "./Player";
-import type { VoiceServerUpdate, VoiceStateUpdate } from "../PlayerManager";
-import type { Event, PlayerUpdate } from "@lavaclient/types";
 import { AudioTrack } from "./Track";
+
+import type { Client, Guild } from "@kyudiscord/neo";
+import type { Event, PlayerUpdate } from "@lavaclient/types";
+import type { LavalinkNode } from "../node/Node";
+import type { VoiceServerUpdate, VoiceStateUpdate } from "../PlayerManager";
 
 export class Link {
   /**
@@ -59,7 +59,7 @@ export class Link {
    * The guild this link is for.
    */
   public get guild(): Guild {
-    return this.client.guilds.get(this.guildId)!
+    return this.client.guilds.get(this.guildId) as Guild;
   }
 
   /**
@@ -70,7 +70,9 @@ export class Link {
    * @since 1.0.0
    */
   public connect(channel: string | VoiceChannel | null, { deaf, mute }: JoinOptions = {}): Link {
-    this.channelId = String(channel);
+    this.channelId = typeof channel === "string"
+      ? channel
+      : channel?.id;
 
     this.guild.shard.send({
       op: GatewayOP.VOICE_STATE_UPDATE,
@@ -116,7 +118,7 @@ export class Link {
    * @param priority If this operation should be prioritized.
    * @since 1.0.0
    */
-  public async send(op: string, data: Dictionary = {}, priority: boolean = false): Promise<Link> {
+  public async send(op: string, data: Dictionary = {}, priority = false): Promise<Link> {
     await this.node.send({
       op,
       guildId: this.guildId,
@@ -159,7 +161,7 @@ export class Link {
   /**
    * @private
    */
-  async _handle(event: Event | PlayerUpdate) {
+  async _handle(event: Event | PlayerUpdate): Promise<void> {
     if (event.op === "event") {
       switch (event.type) {
         case "TrackEndEvent":
@@ -170,12 +172,13 @@ export class Link {
         case "TrackExceptionEvent":
           this.player.emit("error", event);
           break;
-        case "TrackStartEvent":
-          this.player.playing = true;
+        case "TrackStartEvent": {
           const info = await this.node.rest.decodeTracks(event.track);
+          this.player.playing = true;
           this.player.track = new AudioTrack({ track: event.track, info });
           this.player.emit("start", this.player.track);
           break;
+        }
         case "TrackStuckEvent":
           this.player
             .stop()
@@ -187,8 +190,8 @@ export class Link {
       }
     } else if (event.op === "playerUpdate") {
       if (!event.state || !this.player.track) return;
-      this.player.track!.position = event.state.position;
-      this.player.track!.timestamp = event.state.time;
+      this.player.track.position = event.state.position;
+      this.player.track.timestamp = event.state.time;
     }
   }
 }

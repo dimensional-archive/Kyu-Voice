@@ -1,8 +1,9 @@
-import type { Client, Payload } from "@kyudiscord/neo";
 import { GatewayOP, Guild, Store, Util } from "@kyudiscord/neo";
 import { EventEmitter } from "events";
-import type { NodeData } from "./node/Node";
 import { LavalinkNode } from "./node/Node";
+
+import type { Client, Payload } from "@kyudiscord/neo";
+import type { NodeData } from "./node/Node";
 import type { Player } from "./player/Player";
 
 const defaults: ManagerOptions = {

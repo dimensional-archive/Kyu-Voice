@@ -45,7 +45,7 @@ export class REST {
       return this._make("/decodetracks", {
         data: JSON.stringify({ tracks }),
         method: "post"
-      })
+      });
     } else {
       return this._make(`/decodetrack?track=${tracks}`);
     }
@@ -56,35 +56,35 @@ export class REST {
    * @param options The method to use, or any data to write.
    * @private
    */
-  private _make<T>(endpoint: string, { data, method = "get" }: { data?: any, method?: string } = {}): Promise<T> {
+  private _make<T>(endpoint: string, { data, method = "get" }: { data?: unknown, method?: string } = {}): Promise<T> {
     return new Promise((resolve, reject) => {
       const url = new URL(`${this.node.https ? "https" : "http"}://${this.node.address}${endpoint}`);
       const options = {
         method,
         headers: { authorization: this.node.password }
-      }
+      };
 
       const callback = (res: IncomingMessage) => {
         let chunk = Buffer.alloc(0);
 
         res.on("error", (err) => {
-          reject(err)
+          reject(err);
         });
 
         res.on("data", (data) => {
-          chunk = Buffer.concat([ chunk, data ])
+          chunk = Buffer.concat([ chunk, data ]);
         });
 
         res.on("end", () => {
           resolve(res.statusCode === 204 ? null : JSON.parse(chunk.toString()));
         });
-      }
+      };
 
       let req: http.ClientRequest;
       if (this.node.https) req = https.request(url, options, callback);
       else req = http.request(url, options, callback);
 
-      req.on("error", (e) => reject(e))
+      req.on("error", (e) => reject(e));
       if (data) req.write(data);
       req.end();
     });

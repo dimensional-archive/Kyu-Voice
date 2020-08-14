@@ -85,7 +85,7 @@ export class Player extends EventEmitter {
    * @param state
    * @since 1.0.0
    */
-  public async pause(state: boolean = true): Promise<Player> {
+  public async pause(state = true): Promise<Player> {
     await this.link.send("pause", {
       pause: this.paused = state
     });
@@ -114,7 +114,7 @@ export class Player extends EventEmitter {
    * Set the volume of this player.
    * @param value Number between 0 and 1000, defaults to `100`.
    */
-  public async setVolume(value: number = 100): Promise<Player> {
+  public async setVolume(value = 100): Promise<Player> {
     await this.link.send("volume", {
       volume: this.volume = value
     });
@@ -140,20 +140,18 @@ export class Player extends EventEmitter {
    * @param merge Whether to merge the existing equalizer bands with the provided.
    * @since 1.0.0
    */
-  public async setEqualizer(bands: Array<number | Band>, merge: boolean = false) {
+  public async setEqualizer(bands: Array<number | Band>, merge = false): Promise<this> {
     const _bands = bands
       .filter(b => typeof b !== "undefined" && (b !== null && b !== void 0))
       .map((b, i) => typeof b === "number"
         ? { band: i, gain: b }
-        : b)
+        : b);
 
     this.equalizer = merge
       ? this.equalizer.concat(_bands)
       : _bands;
 
-    await this.link.send("equalizer", {
-      bands: this.equalizer
-    });
+    await this.link.send("equalizer", { bands: this.equalizer });
 
     return this;
   }

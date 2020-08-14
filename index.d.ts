@@ -24,7 +24,7 @@ declare module "@kyudiscord/neo" {
      * @param options Options for self mute and self deaf.
      * @since  @kyudiscord/voice 1.0.3
      */
-    join(options?: JoinOptions): Promise<Player>;
+    join(options?: JoinOptions): Player;
 
     /**
      * Leaves this voice channel.
